@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1" xmlns:server="http://www.urbancode.com/PluginServerXMLSchema_v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <header>
+    <identifier id="mt1" name="plugin-test-1" version="1"/>
+    <description>
+      Mark's first test
+	  </description>
+    <tag>step/location</tag>
+  </header>
+  <step-type name="ExampleGroovyStep">
+    <description>Description</description>
+    <properties>
+      <property name="dirOffset">
+        <property-ui description="The directory offset relative to the current working directory where the step should run." label="Directory Offset" type="textBox"/>
+      </property>
+    </properties>
+    <!-- This is the standard post processing script. It sets the step to Success if the exit code
+    of the process was 0. Otherwise, the step fails. In order for a step to run correctly, it must
+    have a post processing script and that post processing script must set the status property
+    based off of the exit code. -->
+    <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+    <!--The syntax of the command element is such that each argument goes on its own line.  
+    The arg attribute can be "value", "path", or "file". So this command will be:
+    ${GROOVY_HOME}/bin/groovy -cp src cmd.groovy ${PLUGIN_INPUT_PROPS} ${PLUGIN_OUTPUT_PROPS} -->
+    <command program="${GROOVY_HOME}/bin/groovy">
+      <arg value="-cp"/>
+      <arg path="java/example.jar:lib/gson-2.2.4.jar"/>
+      <arg file="cmd.groovy"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+  
+  <step-type name="PythonExampleStep">
+    <description>This step demonstrates a plugin step that calls a Python script. It prints the "message" property in the output log.</description>
+    <properties>
+      <!-- By making this property required, it must be filled in by the user in the UrbanCode Deploy UI. -->
+      <property name="message" required="true">
+        <property-ui description="This message will be printed in the execution log." label="Message to Print" type="textBox"/>
+      </property>
+    </properties>
+    <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+    <!-- This command will be: python message.py ${PLUGIN_INPUT_PROPS} ${PLUGIN_OUTPUT_PROPS} -->
+    <command program="python">
+      <arg file="message.py"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+</plugin>
